@@ -1,4 +1,222 @@
-## Design & Implementation Questions
+# Django RAG Chatbot API
+
+## Project Overview
+Django RAG Chatbot API is a backend-only REST service built with Django and Django Rest Framework.  
+It implements a Retrieval-Augmented Generation (RAG) pipeline using LangChain and FAISS to answer user questions from a private knowledge base.
+
+This project is headless and can be integrated with any frontend (Web, Mobile, etc.).
+
+---
+
+## Key Features
+- Retrieval-Augmented Generation (RAG) using FAISS
+- Domain-specific answers from local documents
+- API-first architecture (DRF)
+- JWT authentication (SimpleJWT)
+- Persistent chat history
+- Automated cleanup of old chat logs
+- Stateless and secure backend
+
+---
+
+## Technologies Used
+- Django 5.x
+- Django Rest Framework
+- SimpleJWT (JWT Authentication)
+- LangChain
+- OpenAI API or Google Gemini
+- FAISS (Vector Store)
+- APScheduler
+- SQLite (default)
+- Python 3.10+
+- python-dotenv
+
+---
+
+## RAG Pipeline Overview
+1. User sends a message via API
+2. Message is converted into vector embeddings
+3. FAISS retrieves relevant chunks from faq.txt
+4. Retrieved context is injected into the LLM prompt
+5. LLM generates a context-aware response
+6. Response is returned as JSON
+
+---
+
+## Database Design
+- SQLite database
+- ChatMessage model linked to Django User model
+- Ensures user-specific chat history
+- ACID-compliant storage
+
+---
+
+## Authentication (JWT)
+- Implemented using djangorestframework-simplejwt
+- Access token (short-lived)
+- Refresh token (long-lived)
+- All chat endpoints require authentication
+- No server-side sessions
+
+---
+
+## Background Tasks
+- APScheduler runs automatically with Django
+- Deletes chat messages older than 30 days
+- No Celery or external worker required
+
+---
+
+## API Base URL
+http://127.0.0.1:8000/api/
+
+---
+
+## Authentication Endpoints
+
+### Register
+POST /signup/
+
+Request Body:
+{
+  "username": "user1",
+  "password": "password123"
+}
+
+Response:
+201 Created
+
+---
+
+### Login
+POST /login/
+
+Request Body:
+{
+  "username": "user1",
+  "password": "password123"
+}
+
+Response:
+{
+  "refresh": "eyJ0eX...",
+  "access": "eyJ0eX..."
+}
+
+---
+
+## Chat Endpoints (Bearer Token Required)
+
+### Send Message
+POST /chat/
+
+Headers:
+Authorization: Bearer <access_token>
+
+Request Body:
+{
+  "message": "How do I reset my password?"
+}
+
+Response:
+{
+  "response": "To reset your password, go to settings..."
+}
+
+---
+
+### Get Chat History
+GET /chat-history/
+
+Headers:
+Authorization: Bearer <access_token>
+
+Response:
+[
+  {
+    "message": "How do I reset my password?",
+    "response": "To reset your password..."
+  }
+]
+
+---
+
+## Setup Instructions
+
+### Prerequisites
+- Python 3.10+
+- OpenAI API Key or Google Gemini API Key
+
+---
+
+### Installation
+
+Clone the repository:
+git clone <repository-url>
+cd <project-folder>
+
+Create virtual environment (Windows):
+python -m venv env
+env\Scripts\activate
+
+Install dependencies:
+pip install -r requirements.txt
+
+---
+
+### Environment Configuration
+Create a .env file in the project root:
+
+OPENAI_API_KEY=sk-xxxx
+OR
+GOOGLE_API_KEY=AIza...
+
+---
+
+### Knowledge Base Setup
+Create the following structure:
+
+knowledge_base/
+faq.txt
+
+Add your domain-specific data inside faq.txt.
+
+---
+
+### Database Setup
+python manage.py makemigrations
+python manage.py migrate
+
+---
+
+### Run Server
+python manage.py runserver
+
+---
+
+## Future Improvements
+- WebSocket streaming with Django Channels
+- Multi-session chat support
+- Vector DB persistence
+- Admin analytics dashboard
+
+---
+
+## requirements.txt
+Django>=5.0
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+apscheduler
+openai
+langchain
+langchain-community
+langchain-openai
+langchain-text-splitters
+faiss-cpu
+python-dotenv
+pydantic
+
 
 ### How did you integrate the RAG pipeline for the chatbot, and what role does document retrieval play in the response generation?
 
